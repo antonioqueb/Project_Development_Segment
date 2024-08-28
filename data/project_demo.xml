@@ -7,7 +7,7 @@
         <field name="repository_url">https://github.com/demo/project</field>
         <field name="documentation_url">https://docs.demo.project</field>
         <field name="risk_level">medium</field>
-        <field name="assigned_team_id" ref="hr_department_1"/>
+        <field name="assigned_team_id" ref="hr_department_administracion"/>
 
         <!-- Hitos del Proyecto -->
         <field name="milestone_ids" eval="[(0, 0, {'name': 'Inicio del Proyecto', 'start_date': '2024-09-01', 'end_date': '2024-09-30', 'progress': 100}),
