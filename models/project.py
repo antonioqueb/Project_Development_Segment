@@ -1,4 +1,5 @@
 from odoo import models, fields, api
+from datetime import timedelta, date
 
 # Modelo de Historias de Usuario
 class ProjectUserStory(models.Model):
@@ -171,7 +172,7 @@ class ProjectProject(models.Model):
     def _compute_completion_forecast(self):
         for project in self:
             if project.planned_deadline and project.progress_percentage:
-                remaining_time = (100 - project.progress_percentage) / 100 * (fields.Date.from_string(project.planned_deadline) - fields.Date.today()).days
-                project.completion_forecast = fields.Date.today() + timedelta(days=remaining_time)
+                remaining_time = (100 - project.progress_percentage) / 100 * (fields.Date.from_string(project.planned_deadline) - date.today()).days
+                project.completion_forecast = date.today() + timedelta(days=remaining_time)
             else:
                 project.completion_forecast = project.planned_deadline
