@@ -35,7 +35,7 @@ class ProjectMilestone(models.Model):
     tasks_ids = fields.One2many('project.task', 'milestone_id', string="Tareas Relacionadas")
     progress = fields.Float(string="Progreso (%)")
     is_reached = fields.Boolean(string="Hito Alcanzado", default=False)
-
+    deadline = fields.Date(string="Fecha Límite") 
 
 # Modelo para Dependencias de Proyectos
 class ProjectDependency(models.Model):
@@ -82,6 +82,7 @@ class ProjectProject(models.Model):
     sprint_goal = fields.Text(string="Objetivo del Sprint")
     total_defects = fields.Integer(string="Total de Defectos")
     user_story_ids = fields.One2many('project.user.story', 'project_id', string="Historias de Usuario")
+    planned_deadline = fields.Date(string="Fecha Planificada")  # Agregar este campo
 
     # Campos Calculados
     risk_score = fields.Float(string="Puntuación de Riesgo", compute='_compute_risk_score')
