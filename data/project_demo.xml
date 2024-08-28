@@ -7,7 +7,7 @@
         <field name="repository_url">https://github.com/demo/project</field>
         <field name="documentation_url">https://docs.demo.project</field>
         <field name="risk_level">medium</field>
-        <field name="assigned_team_id" ref="hr_department_administracion"/>
+        <field name="assigned_team_id" ref="hr_department_administracion"/>  <!-- Referencia corregida -->
 
         <!-- Hitos del Proyecto -->
         <field name="milestone_ids" eval="[(0, 0, {'name': 'Inicio del Proyecto', 'start_date': '2024-09-01', 'end_date': '2024-09-30', 'progress': 100}),
@@ -15,12 +15,5 @@
 
         <!-- Dependencias -->
         <field name="dependencies_ids" eval="[(0, 0, {'dependent_project_id': ref('project_demo_2'), 'description': 'Dependencia del proyecto secundario', 'status': 'in_progress'})]"/>
-
-        <!-- Métricas de Calidad -->
-        <field name="quality_metrics_ids" eval="[(0, 0, {'name': 'Tasa de Defectos', 'objective': 'Mantener defectos por debajo del 5%', 'result': '4.5%'}),
-                                                 (0, 0, {'name': 'Cobertura de Pruebas', 'objective': 'Cobertura de pruebas unitarias al 80%', 'result': '75%'})]"/>
-
-        <!-- Planes de Mitigación de Riesgos -->
-        <field name="mitigation_plan_ids" eval="[(0, 0, {'name': 'Mitigación de Riesgo de Retraso', 'steps': 'Asignar más recursos en caso de retrasos', 'responsible_user_id': ref('base.user_admin'), 'deadline': '2024-09-15'})]"/>
     </record>
 </odoo>
