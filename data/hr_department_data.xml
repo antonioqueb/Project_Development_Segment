@@ -1,5 +1,0 @@
-<odoo>
-    <record id="hr_department_administracion" model="hr.department">
-        <field name="name">Administración</field>
-    </record>
-</odoo>
