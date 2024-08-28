@@ -16,6 +16,13 @@ class ProjectUserStory(models.Model):
         # Aquí puedes añadir cualquier lógica adicional necesaria al crear una historia de usuario
         return super(ProjectUserStory, self).create(vals)
 
+class ProjectTask(models.Model):
+    _inherit = 'project.task'
+
+    # Relación Many2one con las Historias de Usuario
+    user_story_id = fields.Many2one('project.user.story', string="Historia de Usuario", ondelete='set null')
+
+
 # Modelo para Hitos del Proyecto
 class ProjectMilestone(models.Model):
     _name = 'project.milestone'
