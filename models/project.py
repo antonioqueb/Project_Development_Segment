@@ -24,7 +24,7 @@ class ProjectTask(models.Model):
     user_story_id = fields.Many2one('project.user.story', string="Historia de Usuario", ondelete='set null')
 
     # Campo relacionado para acceder al porcentaje de progreso del proyecto desde la tarea
-    project_progress_percentage = fields.Float(
+    progress_percentage = fields.Float(
         string="Porcentaje de Progreso del Proyecto",
         related='project_id.progress_percentage',
         store=True
