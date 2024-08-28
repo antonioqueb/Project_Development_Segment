@@ -7,7 +7,6 @@
     """,
     'depends': ['project', 'hr'],
     'data': [
-        'data/project_demo.xml',
         'views/project_views.xml',
        
     ],
