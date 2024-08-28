@@ -14,7 +14,7 @@ class ProjectUserStory(models.Model):
 
     @api.model
     def create(self, vals):
-        # Aquí puedes añadir cualquier lógica adicional necesaria al crear una historia de usuario
+        # Lógica adicional al crear una historia de usuario
         return super(ProjectUserStory, self).create(vals)
 
 class ProjectTask(models.Model):
@@ -23,6 +23,12 @@ class ProjectTask(models.Model):
     # Relación Many2one con las Historias de Usuario
     user_story_id = fields.Many2one('project.user.story', string="Historia de Usuario", ondelete='set null')
 
+    # Campo relacionado para acceder al porcentaje de progreso del proyecto desde la tarea
+    project_progress_percentage = fields.Float(
+        string="Porcentaje de Progreso del Proyecto",
+        related='project_id.progress_percentage',
+        store=True
+    )
 
 # Modelo para Hitos del Proyecto
 class ProjectMilestone(models.Model):
@@ -83,7 +89,7 @@ class ProjectProject(models.Model):
     sprint_goal = fields.Text(string="Objetivo del Sprint")
     total_defects = fields.Integer(string="Total de Defectos")
     user_story_ids = fields.One2many('project.user.story', 'project_id', string="Historias de Usuario")
-    planned_deadline = fields.Date(string="Fecha Planificada")  # Agregar este campo
+    planned_deadline = fields.Date(string="Fecha Planificada")
 
     # Campos Calculados
     risk_score = fields.Float(string="Puntuación de Riesgo", compute='_compute_risk_score')
@@ -111,13 +117,11 @@ class ProjectProject(models.Model):
     @api.depends('risk_description', 'mitigation_plan_ids')
     def _compute_risk_score(self):
         for project in self:
-            # Ejemplo simple de lógica para calcular la puntuación de riesgo basada en la descripción y el plan de mitigación
             project.risk_score = len(project.risk_description) * (1 if project.mitigation_plan_ids else 2)
 
     @api.depends('quality_metrics_ids', 'total_defects', 'client_satisfaction_score')
     def _compute_quality_index(self):
         for project in self:
-            # Índice de calidad basado en las métricas de calidad, defectos y satisfacción del cliente
             if project.total_defects and project.client_satisfaction_score:
                 project.quality_index = (sum(metric.result for metric in project.quality_metrics_ids) - project.total_defects) * project.client_satisfaction_score / 100
             else:
@@ -136,13 +140,11 @@ class ProjectProject(models.Model):
     @api.depends('progress_percentage', 'budget', 'actual_hours')
     def _compute_earned_value(self):
         for project in self:
-            # Valor ganado basado en el progreso y presupuesto del proyecto
             project.earned_value = (project.progress_percentage / 100) * project.budget if project.budget else 0
 
     @api.depends('planned_deadline', 'completion_forecast')
     def _compute_schedule_variance(self):
         for project in self:
-            # Varianza de programación basada en el progreso y fechas planificadas vs. estimadas
             if project.planned_deadline and project.completion_forecast:
                 project.schedule_variance = (fields.Date.from_string(project.planned_deadline) - fields.Date.from_string(project.completion_forecast)).days
             else:
@@ -151,7 +153,6 @@ class ProjectProject(models.Model):
     @api.depends('burn_rate', 'budget', 'actual_hours')
     def _compute_cost_variance(self):
         for project in self:
-            # Varianza de costos basada en el presupuesto consumido vs. el presupuesto total
             budget_spent = project.actual_hours * project.env['hr.employee'].search([]).hourly_rate
             project.cost_variance = budget_spent - project.budget if project.budget else 0
 
