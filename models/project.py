@@ -34,6 +34,8 @@ class ProjectMilestone(models.Model):
     end_date = fields.Date(string="Fecha de Finalización")
     tasks_ids = fields.One2many('project.task', 'milestone_id', string="Tareas Relacionadas")
     progress = fields.Float(string="Progreso (%)")
+    is_reached = fields.Boolean(string="Hito Alcanzado", default=False)
+
 
 # Modelo para Dependencias de Proyectos
 class ProjectDependency(models.Model):
