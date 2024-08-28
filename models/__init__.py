@@ -1,1 +1,1 @@
-from . import project, project_milestone
+from . import project
