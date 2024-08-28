@@ -7,8 +7,10 @@
     """,
     'depends': ['project', 'hr'],
     'data': [
-        'views/project_views.xml',
+        'data/hr_department_data.xml',
         'data/project_demo.xml',
+        'views/project_views.xml',
+       
     ],
     'installable': True,
     'application': False,
