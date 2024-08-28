@@ -1,0 +1,114 @@
+<odoo>
+    <record id="view_project_form_inherit" model="ir.ui.view">
+        <field name="name">project.project.form.inherit</field>
+        <field name="model">project.project</field>
+        <field name="inherit_id" ref="project.edit_project"/>
+        <field name="arch" type="xml">
+            <group name="settings" position="inside">
+                <field name="budget"/>
+                <field name="actual_hours" readonly="1"/>
+                <field name="velocity" readonly="1"/>
+                <field name="progress_percentage" readonly="1"/>
+                <field name="burn_rate" readonly="1"/>
+                <field name="completion_forecast" readonly="1"/>
+                <field name="story_points"/>
+                <field name="sprint_length"/>
+                <field name="repository_url"/>
+                <field name="documentation_url"/>
+                <field name="risk_level"/>
+                <field name="assigned_team_id"/>
+            </group>
+            
+            <!-- Sección para Hitos -->
+            <group string="Hitos">
+                <field name="milestone_ids">
+                    <tree editable="bottom">
+                        <field name="name"/>
+                        <field name="start_date"/>
+                        <field name="end_date"/>
+                        <field name="progress"/>
+                    </tree>
+                    <form>
+                        <group>
+                            <field name="name"/>
+                            <field name="start_date"/>
+                            <field name="end_date"/>
+                            <field name="progress"/>
+                            <field name="tasks_ids"/>
+                        </group>
+                    </form>
+                </field>
+            </group>
+
+            <!-- Sección para Dependencias -->
+            <group string="Dependencias">
+                <field name="dependencies_ids">
+                    <tree editable="bottom">
+                        <field name="dependent_project_id"/>
+                        <field name="status"/>
+                    </tree>
+                    <form>
+                        <group>
+                            <field name="dependent_project_id"/>
+                            <field name="description"/>
+                            <field name="status"/>
+                        </group>
+                    </form>
+                </field>
+            </group>
+
+            <!-- Sección para Métricas de Calidad -->
+            <group string="Métricas de Calidad">
+                <field name="quality_metrics_ids">
+                    <tree editable="bottom">
+                        <field name="name"/>
+                        <field name="objective"/>
+                        <field name="result"/>
+                    </tree>
+                    <form>
+                        <group>
+                            <field name="name"/>
+                            <field name="objective"/>
+                            <field name="result"/>
+                        </group>
+                    </form>
+                </field>
+            </group>
+
+            <!-- Sección para Planes de Mitigación de Riesgos -->
+            <group string="Planes de Mitigación de Riesgos">
+                <field name="mitigation_plan_ids">
+                    <tree editable="bottom">
+                        <field name="name"/>
+                        <field name="responsible_user_id"/>
+                        <field name="deadline"/>
+                    </tree>
+                    <form>
+                        <group>
+                            <field name="name"/>
+                            <field name="steps"/>
+                            <field name="responsible_user_id"/>
+                            <field name="deadline"/>
+                        </group>
+                    </form>
+                </field>
+            </group>
+        </field>
+    </record>
+
+    <!-- Actualización de la Vista Kanban -->
+    <record id="view_project_kanban_inherit" model="ir.ui.view">
+        <field name="name">project.project.kanban.inherit</field>
+        <field name="model">project.project</field>
+        <field name="inherit_id" ref="project.view_project_kanban"/>
+        <field name="arch" type="xml">
+            <field name="open_task_count" position="after">
+                <field name="progress_percentage" widget="progressbar" options="{'max_value': 100}"/>
+            </field>
+            <field name="rating_avg" position="after">
+                <field name="burn_rate"/>
+                <field name="completion_forecast"/>
+            </field>
+        </field>
+    </record>
+</odoo>
