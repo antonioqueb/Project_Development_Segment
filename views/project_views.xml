@@ -1,61 +1,128 @@
 <odoo>
-    <!-- Heredamos la vista kanban del proyecto -->
     <record id="view_project_kanban_inherit_custom" model="ir.ui.view">
-        <field name="name">project.project.kanban.inherit.custom</field>
-        <field name="model">project.project</field>
-        <field name="inherit_id" ref="project.view_project_kanban"/>
+        <field name="name">project.task.kanban.inherit.custom</field>
+        <field name="model">project.task</field>
+        <field name="inherit_id" ref="project.view_task_kanban"/>
         <field name="arch" type="xml">
-            <!-- Insertamos nuestros campos adicionales después de campos relevantes -->
-            
-            <!-- Agregar nuestros campos después del campo 'open_task_count' -->
-            <field name="open_task_count" position="after">
-                <!-- Añadimos los nuevos campos calculados -->
+            <kanban default_group_by="stage_id" class="o_kanban_small_column o_kanban_project_tasks" on_create="quick_create" quick_create_view="project.quick_create_task_form" examples="project" js_class="project_task_kanban" sample="1" default_order="priority desc, sequence, state, date_deadline asc, id desc">
+                <field name="color"/>
+                <field name="priority"/>
+                <field name="stage_id" options="{&quot;group_by_tooltip&quot;: {&quot;description&quot;: &quot;Description&quot;}}"/>
+                <field name="user_ids"/>
+                <field name="partner_id"/>
+                <field name="sequence"/>
+                <field name="displayed_image_id"/>
+                <field name="active"/>
+                <field name="activity_ids"/>
+                <field name="activity_state"/>
+                <field name="rating_count"/>
+                <field name="rating_avg"/>
+                <field name="rating_active"/>
+                <field name="has_late_and_unreached_milestone"/>
+                <field name="allow_milestones"/>
+                <field name="state"/>
+                <field name="company_id"/>
+                <field name="recurrence_id"/>
+                <field name="subtask_count"/>
+                <field name="closed_subtask_count"/>
+                <field name="subtask_count"/>
+                
+                <!-- Añadimos los nuevos campos calculados después de los campos originales -->
                 <field name="progress_percentage" widget="progressbar" options="{'max_value': 100}"/>
                 <field name="burn_rate"/>
                 <field name="completion_forecast"/>
-            </field>
-
-            <!-- Añadir campos adicionales en la parte de la izquierda, como las métricas de calidad -->
-            <field name="rating_avg" position="after">
-                <!-- Campos adicionales -->
                 <field name="quality_index"/>
                 <field name="risk_score"/>
-            </field>
 
-            <!-- Agregamos secciones personalizadas en el menú kanban -->
-            <templates>
-                <!-- Actualizamos el menú de la tarjeta kanban para mostrar las nuevas funcionalidades -->
-                <t t-inherit="kanban-menu" position="inside">
-                    <div class="col-6 o_kanban_card_manage_section o_kanban_manage_view">
-                        <h5 role="menuitem" class="o_kanban_card_manage_title">
-                            <span>Milestones</span>
-                        </h5>
-                        <div role="menuitem">
-                            <a name="action_get_milestones" type="object">Manage Milestones</a>
-                        </div>
-                    </div>
-                </t>
+                <progressbar field="state" colors="{&quot;1_done&quot;: &quot;success-done&quot;, &quot;1_canceled&quot;: &quot;danger&quot;, &quot;03_approved&quot;: &quot;success&quot;, &quot;02_changes_requested&quot;: &quot;warning&quot;, &quot;04_waiting_normal&quot;: &quot;info&quot;, &quot;01_in_progress&quot;: &quot;200&quot;}"/>
 
-                <!-- Actualizamos la parte de la tarjeta de proyecto para mostrar nuestros nuevos campos -->
-                <t t-inherit="kanban-box" position="inside">
-                    <div class="o_kanban_card_content mw-100">
-                        <div class="o_kanban_primary_left">
-                            <div class="o_primary me-5">
-                                <!-- Mostramos algunos de los campos adicionales dentro del contenido kanban -->
-                                <span class="text-muted">
-                                    <field name="sprint_goal"/>
-                                </span>
-                                <span class="text-muted">
-                                    <field name="total_defects"/>
-                                </span>
-                                <span class="text-muted">
-                                    <field name="client_satisfaction_score"/>
-                                </span>
+                <templates>
+                    <t t-name="kanban-menu" t-if="!selection_mode" groups="base.group_user">
+                        <a t-if="widget.editable" role="menuitem" type="set_cover" class="dropdown-item" data-field="displayed_image_id">Set Cover Image</a>
+                        <a name="160" role="menuitem" type="action" class="dropdown-item" context="{'dialog_size': 'medium'}">Share</a>
+                        <div role="separator" class="dropdown-divider"/>
+                        <ul class="oe_kanban_colorpicker" data-field="color"/>
+                    </t>
+
+                    <t t-name="kanban-box">
+                        <div t-attf-class="{{!selection_mode ? 'oe_kanban_color_' + kanban_getcolor(record.color.raw_value) : ''}} oe_kanban_card oe_kanban_global_click">
+                            <div class="oe_kanban_content">
+                                <div class="o_kanban_record_top" t-att-class="['1_done', '1_canceled'].includes(record.state.raw_value) ? 'opacity-50' : ''">
+                                    <div class="o_kanban_record_headings text-muted">
+                                        <strong class="o_kanban_record_title">
+                                            <s t-if="!record.active.raw_value">
+                                                <field name="name"/>
+                                            </s>
+                                            <t t-else="">
+                                                <field name="name"/>
+                                            </t>
+                                        </strong>
+                                        <span t-if="record.parent_id.raw_value" invisible="context.get('default_parent_id', False)" style="display: block; margin-top: 4px;">
+                                            <field name="parent_id"/>
+                                        </span>
+                                        <span invisible="context.get('default_project_id', False)" style="display: block; margin-top: 4px;">
+                                            <field name="project_id" options="{'no_open': True}"/>
+                                        </span>
+                                        <span t-if="record.partner_id.value" style="display: block; margin-top: 4px;">
+                                            <field name="partner_id"/>
+                                        </span>
+                                        <span t-if="record.allow_milestones.raw_value and record.milestone_id.raw_value" t-att-class="record.has_late_and_unreached_milestone.raw_value and !record.state.raw_value.startsWith('1_') ? 'text-danger' : ''" style="display: block; margin-top: 4px;">
+                                            <field name="milestone_id" options="{'no_open': True}"/>
+                                        </span>
+                                    </div>
+                                </div>
+
+                                <div class="o_kanban_record_body" t-att-class="['1_done', '1_canceled'].includes(record.state.raw_value) ? 'opacity-50' : 'text-muted'">
+                                    <field name="tag_ids" widget="many2many_tags" options="{'color_field': 'color'}"/>
+                                    <div t-if="record.date_deadline.raw_value" name="date_deadline" invisible="state in ['1_done', '1_canceled']">
+                                        <field name="date_deadline" widget="remaining_days"/>
+                                    </div>
+                                    <field name="task_properties" widget="properties"/>
+                                    <div t-if="record.displayed_image_id.value">
+                                        <field name="displayed_image_id" widget="attachment_image"/>
+                                    </div>
+                                </div>
+
+                                <div class="o_kanban_record_bottom" t-if="!selection_mode">
+                                    <div class="oe_kanban_bottom_left" t-att-class="['1_done', '1_canceled'].includes(record.state.raw_value) ? 'opacity-50' : ''">
+                                        <field name="priority" widget="priority" style="margin-right: 5px;"/>
+                                        <field name="activity_ids" widget="kanban_activity" style="padding-top: 1.5px; margin-right: 2px"/>
+                                        <b t-if="record.rating_active.raw_value and record.rating_count.raw_value &gt; 0" groups="project.group_project_rating">
+                                            <span class="fa fa-fw fa-smile-o text-success rating_face" t-if="record.rating_avg.raw_value &gt;= 3.66" title="Average Rating: Satisfied" role="img" aria-label="Happy face"/>
+                                            <span class="fa fa-fw fa-meh-o text-warning rating_face" t-elif="record.rating_avg.raw_value &gt;= 2.33" title="Average Rating: Okay" role="img" aria-label="Neutral face"/>
+                                            <span class="fa fa-fw fa-frown-o text-danger rating_face" t-else="" title="Average Rating: Dissatisfied" role="img" aria-label="Sad face"/>
+                                        </b>
+                                        <a t-if="!record.project_id.raw_value" class="text-muted" style="font-size: 17px; padding-top: 1.5px; margin-left: 1.5px">
+                                            <i title="Private Task" class="fa fa-lock"/>
+                                        </a>
+                                        <t t-if="record.project_id.raw_value and record.subtask_count.raw_value">
+                                            <a t-if="record.project_id.raw_value and record.subtask_count.raw_value and record.subtask_count.value &gt; record.closed_subtask_count.value" t-attf-title="{{ record.closed_subtask_count.value }} sub-tasks closed out of {{ record.subtask_count.value }}" class="subtask_list_button btn-link text-dark" role="button">
+                                                <span class="fa fa-check-square-o me-1"/>
+                                                <t t-out="record.closed_subtask_count.value + '/' + record.subtask_count.value"/>
+                                            </a>
+                                            <div t-else="" t-attf-title="{{ record.closed_subtask_count.value }} sub-tasks closed out of {{ record.subtask_count.value }}" class="text-muted">
+                                                <span class="fa fa-check-square-o me-1"/>
+                                                <t t-out="record.closed_subtask_count.value + '/' + record.subtask_count.value"/>
+                                            </div>
+                                        </t>
+                                    </div>
+                                    <div class="oe_kanban_bottom_right" t-if="!selection_mode">
+                                        <div t-att-class="['1_done', '1_canceled'].includes(record.state.raw_value) ? 'opacity-50' : ''">
+                                            <field name="user_ids" widget="many2many_avatar_user"/>
+                                        </div>
+                                        <field name="state" widget="project_task_state_selection" options="{'is_toggle_mode': false}"/>
+                                    </div>
+                                </div>
+
+                                <t t-if="record.project_id.raw_value and record.subtask_count.raw_value and record.subtask_count.raw_value &gt; record.closed_subtask_count.raw_value">
+                                    <div class="kanban_bottom_subtasks_section"/>
+                                </t>
                             </div>
+                            <div class="clearfix"/>
                         </div>
-                    </div>
-                </t>
-            </templates>
+                    </t>
+                </templates>
+            </kanban>
         </field>
     </record>
 </odoo>

@@ -138,7 +138,7 @@ class ProjectProject(models.Model):
             # Valor ganado basado en el progreso y presupuesto del proyecto
             project.earned_value = (project.progress_percentage / 100) * project.budget if project.budget else 0
 
-    @api.depends('progress_percentage', 'planned_deadline', 'completion_forecast')
+    @api.depends('planned_deadline', 'completion_forecast')
     def _compute_schedule_variance(self):
         for project in self:
             # Varianza de programación basada en el progreso y fechas planificadas vs. estimadas
@@ -153,3 +153,25 @@ class ProjectProject(models.Model):
             # Varianza de costos basada en el presupuesto consumido vs. el presupuesto total
             budget_spent = project.actual_hours * project.env['hr.employee'].search([]).hourly_rate
             project.cost_variance = budget_spent - project.budget if project.budget else 0
+
+    @api.depends('closed_task_count', 'task_count')
+    def _compute_progress_percentage(self):
+        for project in self:
+            if project.task_count:
+                project.progress_percentage = (project.closed_task_count / project.task_count) * 100
+            else:
+                project.progress_percentage = 0
+
+    @api.depends('actual_hours', 'budget')
+    def _compute_burn_rate(self):
+        for project in self:
+            project.burn_rate = (project.actual_hours / project.budget) * 100 if project.budget else 0
+
+    @api.depends('progress_percentage', 'planned_deadline')
+    def _compute_completion_forecast(self):
+        for project in self:
+            if project.planned_deadline and project.progress_percentage:
+                remaining_time = (100 - project.progress_percentage) / 100 * (fields.Date.from_string(project.planned_deadline) - fields.Date.today()).days
+                project.completion_forecast = fields.Date.today() + timedelta(days=remaining_time)
+            else:
+                project.completion_forecast = project.planned_deadline
