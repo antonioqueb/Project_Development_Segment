@@ -1,114 +1,61 @@
 <odoo>
-    <record id="view_project_form_inherit" model="ir.ui.view">
-        <field name="name">project.project.form.inherit</field>
-        <field name="model">project.project</field>
-        <field name="inherit_id" ref="project.edit_project"/>
-        <field name="arch" type="xml">
-            <group name="settings" position="inside">
-                <field name="budget"/>
-                <field name="actual_hours" readonly="1"/>
-                <field name="velocity" readonly="1"/>
-                <field name="progress_percentage" readonly="1"/>
-                <field name="burn_rate" readonly="1"/>
-                <field name="completion_forecast" readonly="1"/>
-                <field name="story_points"/>
-                <field name="sprint_length"/>
-                <field name="repository_url"/>
-                <field name="documentation_url"/>
-                <field name="risk_level"/>
-                <field name="assigned_team_id"/>
-            </group>
-            
-            <!-- Sección para Hitos -->
-            <group string="Hitos">
-                <field name="milestone_ids">
-                    <tree editable="bottom">
-                        <field name="name"/>
-                        <field name="start_date"/>
-                        <field name="end_date"/>
-                        <field name="progress"/>
-                    </tree>
-                    <form>
-                        <group>
-                            <field name="name"/>
-                            <field name="start_date"/>
-                            <field name="end_date"/>
-                            <field name="progress"/>
-                            <field name="tasks_ids"/>
-                        </group>
-                    </form>
-                </field>
-            </group>
-
-            <!-- Sección para Dependencias -->
-            <group string="Dependencias">
-                <field name="dependencies_ids">
-                    <tree editable="bottom">
-                        <field name="dependent_project_id"/>
-                        <field name="status"/>
-                    </tree>
-                    <form>
-                        <group>
-                            <field name="dependent_project_id"/>
-                            <field name="description"/>
-                            <field name="status"/>
-                        </group>
-                    </form>
-                </field>
-            </group>
-
-            <!-- Sección para Métricas de Calidad -->
-            <group string="Métricas de Calidad">
-                <field name="quality_metrics_ids">
-                    <tree editable="bottom">
-                        <field name="name"/>
-                        <field name="objective"/>
-                        <field name="result"/>
-                    </tree>
-                    <form>
-                        <group>
-                            <field name="name"/>
-                            <field name="objective"/>
-                            <field name="result"/>
-                        </group>
-                    </form>
-                </field>
-            </group>
-
-            <!-- Sección para Planes de Mitigación de Riesgos -->
-            <group string="Planes de Mitigación de Riesgos">
-                <field name="mitigation_plan_ids">
-                    <tree editable="bottom">
-                        <field name="name"/>
-                        <field name="responsible_user_id"/>
-                        <field name="deadline"/>
-                    </tree>
-                    <form>
-                        <group>
-                            <field name="name"/>
-                            <field name="steps"/>
-                            <field name="responsible_user_id"/>
-                            <field name="deadline"/>
-                        </group>
-                    </form>
-                </field>
-            </group>
-        </field>
-    </record>
-
-    <!-- Actualización de la Vista Kanban -->
-    <record id="view_project_kanban_inherit" model="ir.ui.view">
-        <field name="name">project.project.kanban.inherit</field>
+    <!-- Heredamos la vista kanban del proyecto -->
+    <record id="view_project_kanban_inherit_custom" model="ir.ui.view">
+        <field name="name">project.project.kanban.inherit.custom</field>
         <field name="model">project.project</field>
         <field name="inherit_id" ref="project.view_project_kanban"/>
         <field name="arch" type="xml">
+            <!-- Insertamos nuestros campos adicionales después de campos relevantes -->
+            
+            <!-- Agregar nuestros campos después del campo 'open_task_count' -->
             <field name="open_task_count" position="after">
+                <!-- Añadimos los nuevos campos calculados -->
                 <field name="progress_percentage" widget="progressbar" options="{'max_value': 100}"/>
-            </field>
-            <field name="rating_avg" position="after">
                 <field name="burn_rate"/>
                 <field name="completion_forecast"/>
             </field>
+
+            <!-- Añadir campos adicionales en la parte de la izquierda, como las métricas de calidad -->
+            <field name="rating_avg" position="after">
+                <!-- Campos adicionales -->
+                <field name="quality_index"/>
+                <field name="risk_score"/>
+            </field>
+
+            <!-- Agregamos secciones personalizadas en el menú kanban -->
+            <templates>
+                <!-- Actualizamos el menú de la tarjeta kanban para mostrar las nuevas funcionalidades -->
+                <t t-inherit="kanban-menu" position="inside">
+                    <div class="col-6 o_kanban_card_manage_section o_kanban_manage_view">
+                        <h5 role="menuitem" class="o_kanban_card_manage_title">
+                            <span>Milestones</span>
+                        </h5>
+                        <div role="menuitem">
+                            <a name="action_get_milestones" type="object">Manage Milestones</a>
+                        </div>
+                    </div>
+                </t>
+
+                <!-- Actualizamos la parte de la tarjeta de proyecto para mostrar nuestros nuevos campos -->
+                <t t-inherit="kanban-box" position="inside">
+                    <div class="o_kanban_card_content mw-100">
+                        <div class="o_kanban_primary_left">
+                            <div class="o_primary me-5">
+                                <!-- Mostramos algunos de los campos adicionales dentro del contenido kanban -->
+                                <span class="text-muted">
+                                    <field name="sprint_goal"/>
+                                </span>
+                                <span class="text-muted">
+                                    <field name="total_defects"/>
+                                </span>
+                                <span class="text-muted">
+                                    <field name="client_satisfaction_score"/>
+                                </span>
+                            </div>
+                        </div>
+                    </div>
+                </t>
+            </templates>
         </field>
     </record>
 </odoo>
